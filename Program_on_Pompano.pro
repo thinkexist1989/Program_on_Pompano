@@ -19,11 +19,13 @@ SOURCES += main.cpp \
     canctrl.cpp \
     kellerctrl.cpp \
     xsensctrl.cpp \
+    altctrl.cpp
 
 HEADERS += \
     canctrl.h \
     kellerctrl.h \
-    xsensctrl.h
+    xsensctrl.h \
+    altctrl.h
 
 
 target.path = /test

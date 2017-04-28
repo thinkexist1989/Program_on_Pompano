@@ -12,10 +12,10 @@
 
 #include <iostream>
 
-XsensCtrl::XsensCtrl() : m_hPort(0) {}
+XsensCtrl::XsensCtrl() : m_hPort(0),stopped(false) {}
 
 
-XsensCtrl::XsensCtrl(int fd) : m_hPort(fd) {}
+XsensCtrl::XsensCtrl(int fd) : m_hPort(fd),stopped(false) {}
 
 unsigned char XsensCtrl::CalcCrc8(unsigned char *Data, int datalen)
 {
@@ -86,7 +86,7 @@ void XsensCtrl::run()
     if(GoToMeasurement())
         std::cout << "begin measuring:"<<std::endl;
     usleep(100000); // must wait some time
-    while(1){
+    while(!stopped){
         usleep(50000);
         ReqData();
 //        std::cout << m_roll << ' '<< m_pitch << ' ' <<m_yaw <<std::endl;

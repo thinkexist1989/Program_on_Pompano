@@ -20,9 +20,9 @@
 
 
 
-KellerCtrl::KellerCtrl(int fd) : m_hPort(fd),pressval(0),tempval(0),m_nDevice(250) {}
+KellerCtrl::KellerCtrl(int fd) : m_hPort(fd),pressval(0),tempval(0),m_nDevice(250),stopped(false) {}
 
-KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250) {}
+KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250),stopped(false) {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -90,7 +90,7 @@ int KellerCtrl::OpenCommPort(char* devname)
     ttyopt.c_oflag &= ~(OPOST | ONLCR | OCRNL);
 
     ttyopt.c_cc[VTIME] = 1;   //设置超时0 seconds
-    ttyopt.c_cc[VMIN] = 20;    //define the minimum bytes data to be readed
+    ttyopt.c_cc[VMIN] = 50;    //define the minimum bytes data to be readed
                    // opt.c_cc[VMIN]=0:Update the options and do it NOW  !!!!!!
 
     tcsetattr(ttyd, TCSANOW, &ttyopt);
@@ -379,18 +379,18 @@ void KellerCtrl::run()  //thread running function
     }
     std::cout <<"SN: " << nSN << std::endl;
     int a = 0;
-    while(1){
-
+    while(!stopped){
+        mutex.lock();
         nRes = F73(PRESSURE,&pressval);
-
+        mutex.unlock();
         if(nRes!= COMM_OK){
             std::cout << "Reading of pressure value not possible !" << std::endl;
             return;
         }
      //   std::cout << a++ << "Pressure: " << pressval;
-
+        mutex.lock();
         nRes = F73(TEMPRETURE,&tempval);
-
+        mutex.unlock();
         if(nRes!= COMM_OK){
             std::cout << "Reading of pressure value not possible !" << std::endl;
             return;

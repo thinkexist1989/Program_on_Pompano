@@ -13,6 +13,7 @@
 //#include <Afxtempl.h>
 //#include <afxmt.h>
 #include <QThread>
+#include <QMutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -85,6 +86,7 @@ class KellerCtrl : public QThread
 public:
     KellerCtrl(int fd);
     KellerCtrl();
+    QMutex mutex;
 private:
 
     int 	m_hPort;			// Handle of port
