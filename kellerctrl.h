@@ -130,6 +130,8 @@ public:
 
     float pressval; // pressure value
     float tempval;  // tempreture value
+
+    bool  isnew;
 };
 
 #endif

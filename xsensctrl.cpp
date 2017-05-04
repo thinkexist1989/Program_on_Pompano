@@ -12,10 +12,10 @@
 
 #include <iostream>
 
-XsensCtrl::XsensCtrl() : m_hPort(0),stopped(false) {}
+XsensCtrl::XsensCtrl() : m_hPort(0),stopped(false),isnew(false) {}
 
 
-XsensCtrl::XsensCtrl(int fd) : m_hPort(fd),stopped(false) {}
+XsensCtrl::XsensCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false){}
 
 unsigned char XsensCtrl::CalcCrc8(unsigned char *Data, int datalen)
 {
@@ -252,6 +252,7 @@ bool XsensCtrl::ReqData()
         bteArr[0] = m_RxBuffer[18]; bteArr[1] = m_RxBuffer[17]; bteArr[2] = m_RxBuffer[16]; bteArr[3] = m_RxBuffer[15];
         m_yaw= *(float*)(&bteArr[0]);
 
+        isnew = true;
         return true;
     }
 

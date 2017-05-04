@@ -20,9 +20,9 @@
 
 
 
-KellerCtrl::KellerCtrl(int fd) : m_hPort(fd),pressval(0),tempval(0),m_nDevice(250),stopped(false) {}
+KellerCtrl::KellerCtrl(int fd) : m_hPort(fd),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
 
-KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250),stopped(false) {}
+KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -387,6 +387,8 @@ void KellerCtrl::run()  //thread running function
             std::cout << "Reading of pressure value not possible !" << std::endl;
             return;
         }
+
+        isnew = true; // Recieved New Data!!
      //   std::cout << a++ << "Pressure: " << pressval;
         mutex.lock();
         nRes = F73(TEMPRETURE,&tempval);

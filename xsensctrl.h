@@ -73,6 +73,8 @@ public:
     float m_pitch;
     float m_yaw;
 
+    bool isnew;
+
 };
 
 #endif // XSENSCTRL_H

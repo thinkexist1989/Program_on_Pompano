@@ -19,14 +19,19 @@ SOURCES += main.cpp \
     canctrl.cpp \
     kellerctrl.cpp \
     xsensctrl.cpp \
-    altctrl.cpp
+    altctrl.cpp \
+    tcpctrl.cpp
 
 HEADERS += \
     canctrl.h \
     kellerctrl.h \
     xsensctrl.h \
-    altctrl.h
+    altctrl.h \
+    tcpctrl.h
 
-
+#remote debugging, copy program to pompanoo /test directory
 target.path = /test
 INSTALLS += target
+
+#Add Support to TCP
+QT       += network

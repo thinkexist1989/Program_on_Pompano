@@ -11,14 +11,15 @@
 
 #include <QDebug>
 
-AltCtrl::AltCtrl() {}
-AltCtrl::AltCtrl(int fd) : m_hPort(fd),stopped(false) {}
+AltCtrl::AltCtrl() : m_hPort(0),stopped(false),isnew(false) {}
+AltCtrl::AltCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false) {}
 
 void AltCtrl::run()
 {
     while(!stopped){
         GetData(ALT0018,m_distance[ALT0018],m_energy[ALT0018],m_correlation[ALT0018],m_temperature[ALT0018]);
         GetData(ALT0020,m_distance[ALT0020],m_energy[ALT0020],m_correlation[ALT0020],m_temperature[ALT0020]);
+        isnew = true;
         usleep(250000);
     }
 }
