@@ -39,7 +39,7 @@ union res2
 
 
 CanCtrl::CanCtrl():
-    stopped(false),motorvec(8),bs(0)
+    stopped(false),motorvec(8),bs(0),cabin_temp(0),wall_temp(0)
 {
 }
 
@@ -96,30 +96,20 @@ void CanCtrl::run()
 
                         break;
                     case 0x03:{
-                        int a[2] = {frame.data[4], frame.data[5]};
-                        int   b  = (a[1]<<8) + a[0];
-                        motorvec[no].speed = b;
-
-                        int aa[2] = {frame.data[6], frame.data[7]};
-                        int   c  = (aa[1]<<8) + aa[0];
-                        motorvec[no].current = c;
-
-                        bs.set(no);
+                        memcpy(&motorvec[no].speed,&frame.data[4],2);
+                        memcpy(&motorvec[no].current,&frame.data[6],2);
+                        bs.set(no); //set flag bit
                         break;
                     }
                     case 0x04:
 
                         break;
                     case 0x05:{
-                        int a[2] = {frame.data[4], frame.data[5]};
-                        int   b  = (a[1]<<8) + a[0];
-                        motorvec[no].speed = -b;
+                        memcpy(&motorvec[no].speed,&frame.data[4],2);
+                        motorvec[no].speed = -motorvec[no].speed;
 
-                        int aa[2] = {frame.data[6], frame.data[7]};
-                        int   c  = (aa[1]<<8) + aa[0];
-                        motorvec[no].current = c;
-
-                        bs.set(no);
+                        memcpy(&motorvec[no].current,&frame.data[6],2);
+                        bs.set(no); // set flag bit
                         break;
                     }
                     default:
@@ -165,7 +155,7 @@ void CanCtrl::motorctrl()
 {
     for(int i = 0; i < 8 ; i++){
         res2 val;
-        send_frame.can_id = MOTOR1 + i;
+        send_frame.can_id = 0x601 + i;
         send_frame.can_dlc = 8;
         val.i = abs((int)(motorvec[i].pwm * 100));
         send_frame.data[0] = 0x23;
@@ -178,6 +168,26 @@ void CanCtrl::motorctrl()
         send_frame.data[7] = 0x00;
 
         int nbytes = write(s, &send_frame, sizeof(struct can_frame));
+    }
+}
+
+void CanCtrl::check()
+{
+    //23 FF 60 06 00 00 00 00
+    for(int i = 0; i < 9 ; i++){
+        send_frame.can_id = 0x601 + i;
+        send_frame.can_dlc = 8;
+        send_frame.data[0] = 0x23;
+        send_frame.data[1] = 0xFF;
+        send_frame.data[2] = 0x60;
+        send_frame.data[3] = 0x06;
+        send_frame.data[4] = 0x00;
+        send_frame.data[5] = 0x00;
+        send_frame.data[6] = 0x00;
+        send_frame.data[7] = 0x00;
+
+        int nbytes = write(s, &send_frame, sizeof(struct can_frame));
+        usleep(50000);
     }
 }
 

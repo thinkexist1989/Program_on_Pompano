@@ -23,18 +23,12 @@
 
 struct Motor
 {
-    int   status; // motor status : fault==>-1, stop==>0, start==>2, enable==>1
+    short int   status; // motor status : fault==>-1, stop==>0, start==>2, enable==>1
     float pwm; //-99.99~99.99 %
-    int   speed; //-9999~9999 r/min
-    int   current; //0 ~ 9999mA
+    short int   speed; //-9999~9999 r/min
+    short int   current; //0 ~ 9999mA
 };
 
-union res
-{
-    float f;
-    int   i;
-    unsigned char data[4];
-};
 
 
 
@@ -66,6 +60,7 @@ public:
     inline int sgn(float a) {return a >= 0?1:-1;}
 
     void motorctrl(); //run motorctrl can send the Motor.pwm to motors
+    void check();
 };
 
 

@@ -17,21 +17,18 @@
 #include <canctrl.h>
 #include <kellerctrl.h>
 #include <xsensctrl.h>
+#include <lightctrl.h>
+#include <platformctrl.h>
 
-union res
-{
-    float f;
-    int   i;
-    unsigned char data[4];
-};
+
 
 
 
 class TcpCtrl : public QThread
 {
 public:
-   TcpCtrl();
-   TcpCtrl(AltCtrl& alt, CanCtrl& can, KellerCtrl& keller, XsensCtrl& xsens);
+  // TcpCtrl();
+   TcpCtrl(AltCtrl& alt, CanCtrl& can, KellerCtrl& keller, XsensCtrl& xsens, LightCtrl& light, PlatformCtrl &plat);
 protected:
    void run();
 private:
@@ -46,6 +43,8 @@ public:
    CanCtrl& can;
    KellerCtrl& keller;
    XsensCtrl& xsens;
+   LightCtrl& light;
+   PlatformCtrl& plat;
 
    void StartServer();
    void Send();

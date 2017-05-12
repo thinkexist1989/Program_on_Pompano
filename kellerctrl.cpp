@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // kellerctrl.cpp
 
 #include "kellerctrl.h"
 
-#include <stdio.h>   /*标准输入输出定义*/
+#include <stdio.h>   /*标准输入输出定义*///
+
 #include <stdlib.h>  /*标准函数库定义*/
 #include <unistd.h>  /*UNIX标准函数定义*/
 #include <sys/types.h>  /*基本系统数据类型*/
@@ -15,14 +15,14 @@
 #include <string.h>
 
 #include <iostream>
+#include <QMutex>
+
+extern QMutex mutex; // defined in main.cpp
 
 
+KellerCtrl::KellerCtrl(int fd): m_hPort(fd),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
 
-
-
-KellerCtrl::KellerCtrl(int fd) : m_hPort(fd),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
-
-KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
+//KellerCtrl::KellerCtrl() : m_hPort(0),pressval(0),tempval(0),m_nDevice(250),stopped(false), isnew(false) {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -89,7 +89,7 @@ int KellerCtrl::OpenCommPort(char* devname)
     ttyopt.c_iflag &= ~(IXON | IXOFF | IXANY);
     ttyopt.c_oflag &= ~(OPOST | ONLCR | OCRNL);
 
-    ttyopt.c_cc[VTIME] = 1;   //设置超时0 seconds
+    ttyopt.c_cc[VTIME] = 1;   //设置超时100 ms
     ttyopt.c_cc[VMIN] = 50;    //define the minimum bytes data to be readed
                    // opt.c_cc[VMIN]=0:Update the options and do it NOW  !!!!!!
 
@@ -158,7 +158,7 @@ int KellerCtrl::TransferData(_u16 nTX,_u16 nRX)
 		case COMM_RX_ERROR:
 			if(m_bRepeatIfError) {
                 usleep(400);
-                bRepeat= true;
+                bRepeat= false;
 			}
 			break;
 		}
@@ -361,44 +361,48 @@ void KellerCtrl::run()  //thread running function
     _u32 nSN;
 
     // First F48 call should wake-up the device
-    //m_cCtrl.F48(&nClass, &nGroup, &nYear, &nWeek, &nBuffer, &nState);
+    F48(&nClass, &nGroup, &nYear, &nWeek, &nBuffer, &nState);
     usleep(200);
-
     int nRes = F48(&nClass, &nGroup, &nYear, &nWeek, &nBuffer, &nState);
+
     if(nRes != COMM_OK) {
         std::cout <<"Initialisation not possible !" << std::endl;
         return;
     }
-    std::cout << "ID: " << (int)nClass <<"." << (int)nGroup << "Version: " <<(int)nYear << (int)nWeek <<std::endl;
+    std::cout << "Keller ID: " << (int)nClass <<"." << (int)nGroup << "Version: " <<(int)nYear << (int)nWeek <<std::endl;
 
     nRes = F69(&nSN);
+
     // Check the answer
     if(nRes!= COMM_OK){
         std::cout <<"Reading of SN not possible !" << std::endl;
         return;
     }
-    std::cout <<"SN: " << nSN << std::endl;
+    std::cout <<"Keller SN: " << nSN << std::endl;
+
+
     int a = 0;
+   // usleep(100000);
     while(!stopped){
-        mutex.lock();
+
+       // usleep(200);
         nRes = F73(PRESSURE,&pressval);
-        mutex.unlock();
         if(nRes!= COMM_OK){
             std::cout << "Reading of pressure value not possible !" << std::endl;
             return;
         }
-
         isnew = true; // Recieved New Data!!
      //   std::cout << a++ << "Pressure: " << pressval;
-        mutex.lock();
-        nRes = F73(TEMPRETURE,&tempval);
-        mutex.unlock();
-        if(nRes!= COMM_OK){
-            std::cout << "Reading of pressure value not possible !" << std::endl;
-            return;
-        }
+     //   nRes = F73(TEMPRETURE,&tempval);
+
+     //   if(nRes!= COMM_OK){
+     //       std::cout << "Reading of pressure value not possible !" << std::endl;
+    //        return;
+     //   }
+      //  std::cout <<"reicieved keller data!" << std::dec << a++<<std::endl;
+        usleep(100000); //50ms
      //   std::cout << "       Tempreture: " << tempval << std::endl;
-        usleep(50000); //50ms
+
     }
 
 }

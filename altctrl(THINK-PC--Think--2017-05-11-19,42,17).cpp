@@ -17,21 +17,19 @@
 extern QMutex mutex;
 extern bool isusing;
 
+//AltCtrl::AltCtrl() : m_hPort(0),stopped(false),isnew(false), m_distance({0}),m_energy({0}),m_correlation({0}), m_temperature({0}),m_watertemp(0) {}
 AltCtrl::AltCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false),m_distance({0}),m_energy({0}),m_correlation({0}), m_temperature({0}) ,m_watertemp(0) {}
 
 void AltCtrl::run()
 {
-   // usleep(1000000);
     int a = 0;
     while(!stopped){
-
+        usleep(200000);
         GetData(ALT0018,m_distance[ALT0018],m_energy[ALT0018],m_correlation[ALT0018],m_temperature[ALT0018]);
         GetData(ALT0020,m_distance[ALT0020],m_energy[ALT0020],m_correlation[ALT0020],m_temperature[ALT0020]);
         isnew = true;
         m_watertemp = (m_temperature[0]+m_temperature[1])/2.0;
       //  std::cout <<"recieved altimeters data!!" << std::dec<< a++ <<std::endl;
-        usleep(250000);
-
     }
 }
 
@@ -48,6 +46,8 @@ int AltCtrl::OpenCommPort(char *devname)
 
     ttyd = open(devname, O_RDWR | O_NOCTTY);
 
+   // fcntl(ttyd,F_SETFL,0);
+   // ttyd = open(devname, O_RDWR | O_NOCTTY);
 
     if (ttyd < 0)
     {
@@ -62,7 +62,7 @@ int AltCtrl::OpenCommPort(char *devname)
                                   //void *memset(void *s,  int c, size_t n)
                                   //把一个char a[20]清零, 是 memset(a, 0, 20)
 
-    /* Set baudrate 115200bps */
+    /* Set baudrate 9600bps */
     cfsetispeed(&ttyopt, B115200);
     cfsetospeed(&ttyopt, B115200);
 
