@@ -10,28 +10,17 @@
 #include <string.h>
 
 #include <QDebug>
-#include <QMutex>
 
-#include <iostream>
-
-extern QMutex mutex;
-extern bool isusing;
-
-AltCtrl::AltCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false),m_distance({0}),m_energy({0}),m_correlation({0}), m_temperature({0}) ,m_watertemp(0) {}
+AltCtrl::AltCtrl() : m_hPort(0),stopped(false),isnew(false) {}
+AltCtrl::AltCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false) {}
 
 void AltCtrl::run()
 {
-   // usleep(1000000);
-    int a = 0;
     while(!stopped){
-
         GetData(ALT0018,m_distance[ALT0018],m_energy[ALT0018],m_correlation[ALT0018],m_temperature[ALT0018]);
         GetData(ALT0020,m_distance[ALT0020],m_energy[ALT0020],m_correlation[ALT0020],m_temperature[ALT0020]);
         isnew = true;
-        m_watertemp = (m_temperature[0]+m_temperature[1])/2.0;
-      //  std::cout <<"recieved altimeters data!!" << std::dec<< a++ <<std::endl;
         usleep(250000);
-
     }
 }
 
@@ -48,6 +37,8 @@ int AltCtrl::OpenCommPort(char *devname)
 
     ttyd = open(devname, O_RDWR | O_NOCTTY);
 
+   // fcntl(ttyd,F_SETFL,0);
+   // ttyd = open(devname, O_RDWR | O_NOCTTY);
 
     if (ttyd < 0)
     {
@@ -62,9 +53,9 @@ int AltCtrl::OpenCommPort(char *devname)
                                   //void *memset(void *s,  int c, size_t n)
                                   //把一个char a[20]清零, 是 memset(a, 0, 20)
 
-    /* Set baudrate 115200bps */
-    cfsetispeed(&ttyopt, B115200);
-    cfsetospeed(&ttyopt, B115200);
+    /* Set baudrate 9600bps */
+    cfsetispeed(&ttyopt, B9600);
+    cfsetospeed(&ttyopt, B9600);
 
 
     /* Set parity none, 1 stop bit, 8 data bits */
@@ -98,7 +89,7 @@ int AltCtrl::OpenCommPort(char *devname)
 
 void AltCtrl::GetData(int ID, float &distance, float &energy, float &correlation, float &temperature)
 {
-
+    mutex.lock();
 
     int dw;
 
@@ -108,11 +99,12 @@ void AltCtrl::GetData(int ID, float &distance, float &energy, float &correlation
     else if(ID == ALT0020)  sendbuf[1] = 'q';
 
     dw = write(m_hPort,sendbuf,3);
+
     if(dw != 3){
         qDebug()<<"Send to altimeter failed\n";
         return;
     }
-    usleep(200);
+
     char recvbuf[42] = {0};
     dw = read(m_hPort,recvbuf,42);
 
@@ -120,8 +112,10 @@ void AltCtrl::GetData(int ID, float &distance, float &energy, float &correlation
         qDebug()<<"Recieve from altimeter failed\n";
         return;
     }
+
+    mutex.unlock();
     char premble[6];
-    memcpy(premble,recvbuf,6);
+    strncpy(premble,recvbuf,6);
 //    int a = strcmp(premble,"$ISADI");
     if(premble[0] == '$'){
         char temp[7];
@@ -130,14 +124,14 @@ void AltCtrl::GetData(int ID, float &distance, float &energy, float &correlation
         dis = atof(temp);
 
         memset(temp,0,sizeof(temp));
-        memcpy(temp,&recvbuf[17],6);
+        strncpy(temp,&recvbuf[17],6);
         ener = atof(temp);   //energy = 0.707 is perfect;
 
-        memcpy(temp,&recvbuf[24],6);
+        strncpy(temp,&recvbuf[24],6);
         corr = atof(temp);
 
         memset(temp,0,sizeof(temp));
-        memcpy(temp,&recvbuf[31],4);
+        strncpy(temp,&recvbuf[31],4);
         temperature = atof(temp);
 
         distance = dis;

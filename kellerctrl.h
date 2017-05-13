@@ -13,6 +13,7 @@
 //#include <Afxtempl.h>
 //#include <afxmt.h>
 #include <QThread>
+#include <QMutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -83,9 +84,9 @@ union FloatByte
 class KellerCtrl : public QThread
 {
 public:
-    KellerCtrl(int fd = 0);
-   // KellerCtrl();
-
+    KellerCtrl(int fd);
+    KellerCtrl();
+    QMutex mutex;
 private:
 
     int 	m_hPort;			// Handle of port

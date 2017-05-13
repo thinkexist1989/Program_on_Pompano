@@ -20,18 +20,14 @@ SOURCES += main.cpp \
     kellerctrl.cpp \
     xsensctrl.cpp \
     altctrl.cpp \
-    tcpctrl.cpp \
-    lightctrl.cpp \
-    platformctrl.cpp
+    tcpctrl.cpp
 
 HEADERS += \
     canctrl.h \
     kellerctrl.h \
     xsensctrl.h \
     altctrl.h \
-    tcpctrl.h \
-    lightctrl.h \
-    platformctrl.h
+    tcpctrl.h
 
 #remote debugging, copy program to pompanoo /test directory
 target.path = /test

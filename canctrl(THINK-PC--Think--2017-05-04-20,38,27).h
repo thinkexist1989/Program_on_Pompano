@@ -29,14 +29,6 @@ struct Motor
     int   current; //0 ~ 9999mA
 };
 
-union res
-{
-    float f;
-    int   i;
-    unsigned char data[4];
-};
-
-
 
 class CanCtrl : public QThread
 {
@@ -47,10 +39,9 @@ protected:
 private:
     volatile bool stopped; //线程停止标志
 public:
-    std::bitset<8> bs; //bits = 00000001  then motor1's data is new
+    std::bitset<8> bs;
     struct sockaddr_can addr;
     struct can_frame frame;
-    struct can_frame send_frame;
     struct ifreq ifr;
     int s;
     int InitCan();
@@ -60,12 +51,9 @@ public:
     float cabin_temp;
     float wall_temp;
 
-    inline std::vector<Motor>& get_motorvec() {return motorvec;}
+    inline std::vector<Motor>& get_motorvec() {isnewreturn motorvec;}
     inline float get_cabin_temp() {return cabin_temp;}
     inline float get_wall_temp() {return wall_temp;}
-    inline int sgn(float a) {return a >= 0?1:-1;}
-
-    void motorctrl(); //run motorctrl can send the Motor.pwm to motors
 };
 
 

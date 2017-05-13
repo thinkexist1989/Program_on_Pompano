@@ -45,8 +45,8 @@
 class XsensCtrl : public QThread
 {
 public:
-  //  XsensCtrl();
-    XsensCtrl(int fd = 0);
+    XsensCtrl();
+    XsensCtrl(int fd);
 private:
     int m_hPort;   //Handle of port
     unsigned char   m_TxBuffer[TX_MAX];     //Send-buffer

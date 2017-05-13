@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-//XsensCtrl::XsensCtrl() : m_hPort(0),stopped(false),isnew(false) {}
+XsensCtrl::XsensCtrl() : m_hPort(0),stopped(false),isnew(false) {}
 
 
 XsensCtrl::XsensCtrl(int fd) : m_hPort(fd),stopped(false),isnew(false){}
@@ -75,16 +75,16 @@ void XsensCtrl::run()
     unsigned long num;
     num = (ID[0]<<24)+(ID[1]<<16)+(ID[2]<<8)+ID[3];
 
-    std::cout<< "xsens Device ID: " << std::hex << num <<std::endl;
+    std::cout<< "Device ID: " << std::hex << num <<std::endl;
 
     if(SetOutputConfig())
-        std::cout << "xens set output config success"<<std::endl;
+        std::cout << "set output config success"<<std::endl;
 
     if(SetSyncSettings())
-        std::cout << "xsens set sync success"<<std::endl;
+        std::cout << "set sync success"<<std::endl;
 
     if(GoToMeasurement())
-        std::cout << "xsens begin measuring"<<std::endl;
+        std::cout << "begin measuring:"<<std::endl;
     usleep(100000); // must wait some time
     while(!stopped){
         usleep(50000);

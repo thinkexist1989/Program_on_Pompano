@@ -1,67 +1,43 @@
 ﻿#include <QCoreApplication>
-
+#include <kellerctrl.h>
+#include <xsensctrl.h>
+#include <canctrl.h>
+#include <altctrl.h>
+#include <tcpctrl.h>
 #include <iostream>
 #include <iomanip>
 #include <QtNetwork>
-#include <QMutex>
-
-//Device Class Headers
-#include <kellerctrl.h>     // keller pressure sumitter
-#include <xsensctrl.h>      // xsens mti AHRS
-#include <canctrl.h>        // canbus for motors
-#include <altctrl.h>        // ISA500 altimeters
-#include <lightctrl.h>      // underwater light
-#include <platformctrl.h>   // three-axises plantform
-
-#include <tcpctrl.h>    // tcpip communications with upper PC
-
-
-
-QMutex mutex;
-bool   isusing = false;
-
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
-    std::cout << "Please wait for a while........." << std::endl;
-    usleep(2000000);
-    std::cout << "Initializing all sensors...." << std::endl;
-
-    KellerCtrl keller; // object of Keller
+    KellerCtrl keller;
     keller.InitCommunication();
-   // int fd485 = keller.OpenCommPort("/dev/ttyUSB0");  // 485 port
-   // keller.start();
+    int fd485 = keller.OpenCommPort("/dev/ttyO2");
 
-  //  AltCtrl altimeter(fd485); //object of ISA500 altimeter
-    AltCtrl altimeter;
-    altimeter.OpenCommPort("/dev/ttyO2");
+    AltCtrl altimeter(fd485);
+    XsensCtrl xsens;
+    int fd232 = xsens.OpenCommPort("/dev/ttyO1");
+
+    CanCtrl can;
+    can.InitCan();
+
+    can.start();
+    keller.start();
+    xsens.start();
     altimeter.start();
 
-    XsensCtrl xsens; //object of Xsens
-    int fd232 = xsens.OpenCommPort("/dev/ttyO1"); // 232 port
-    //xsens.start();
-
-    CanCtrl can;  //object of Canbus
-    can.InitCan();
-    can.start();
-
-    LightCtrl light; //object of underwater light
-   // light.OpenCommPort("/dev/ttyUSB0");
-   // light.start();
-
-    PlatformCtrl plat; //object of platform
-
-
-    TcpCtrl tcp(altimeter,can,keller,xsens,light,plat); //object of tcp
-    tcp.StartServer();
+    TcpCtrl tcp;
 
 
     while(1){
-        tcp.Send(); //send data to upper PC
-        can.check();
-        usleep(50000);
+
+
+     //   std::cout << std::fixed << std::setprecision(2)<<"roll: " << xsens.m_roll <<"   pitch: "<< xsens.m_pitch <<"   yaw: "<<xsens.m_yaw;
+     //   std::cout << std::setprecision(6)<<"   pressure: "<<keller.pressval << "   tempreture: "<<keller.tempval <<std::endl;
+        std::cout << std::fixed << std::setprecision(4) << "ALT0018->dis: " << altimeter.m_distance[ALT0018] <<"  temp: "<< altimeter.m_temperature[ALT0018]<<"   ALT0020->dis: " << altimeter.m_distance[ALT0020] <<"  temp: "<< altimeter.m_temperature[ALT0020] <<std::endl;
+     //   usleep(50000);
+        usleep(250000);
     }
     return a.exec();
 }
