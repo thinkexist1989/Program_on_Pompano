@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     xsens.start();
     altimeter.start();
 
-    TcpCtrl tcp;
+   // TcpCtrl tcp;
 
 
     while(1){
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
      //   std::cout << std::fixed << std::setprecision(2)<<"roll: " << xsens.m_roll <<"   pitch: "<< xsens.m_pitch <<"   yaw: "<<xsens.m_yaw;
      //   std::cout << std::setprecision(6)<<"   pressure: "<<keller.pressval << "   tempreture: "<<keller.tempval <<std::endl;
-        std::cout << std::fixed << std::setprecision(4) << "ALT0018->dis: " << altimeter.m_distance[ALT0018] <<"  temp: "<< altimeter.m_temperature[ALT0018]<<"   ALT0020->dis: " << altimeter.m_distance[ALT0020] <<"  temp: "<< altimeter.m_temperature[ALT0020] <<std::endl;
+      //  std::cout << std::fixed << std::setprecision(4) << "ALT0018->dis: " << altimeter.m_distance[ALT0018] <<"  temp: "<< altimeter.m_temperature[ALT0018]<<"   ALT0020->dis: " << altimeter.m_distance[ALT0020] <<"  temp: "<< altimeter.m_temperature[ALT0020] <<std::endl;
      //   usleep(50000);
         usleep(250000);
     }

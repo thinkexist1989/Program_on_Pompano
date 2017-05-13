@@ -29,12 +29,7 @@ struct Motor
     int   current; //0 ~ 9999mA
 };
 
-union res
-{
-    float f;
-    int   i;
-    unsigned char data[4];
-};
+
 
 
 

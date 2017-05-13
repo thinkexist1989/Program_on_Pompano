@@ -30,7 +30,6 @@ union res
 class TcpCtrl : public QThread
 {
 public:
-   TcpCtrl();
    TcpCtrl(AltCtrl& alt, CanCtrl& can, KellerCtrl& keller, XsensCtrl& xsens);
 protected:
    void run();

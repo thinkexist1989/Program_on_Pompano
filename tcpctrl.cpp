@@ -6,9 +6,6 @@
 #define TCP_FRAME_LEN 255
 
 
-TcpCtrl::TcpCtrl():sock_server_fd(-1),sock_connect_fd(-1),stopped(false)
-{
-}
 
 TcpCtrl::TcpCtrl(AltCtrl &alt, CanCtrl &can, KellerCtrl &keller, XsensCtrl &xsens)
     : alt(alt), can(can), keller(keller), xsens(xsens)
