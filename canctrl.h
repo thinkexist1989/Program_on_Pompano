@@ -49,6 +49,8 @@ public:
     int s;
     int InitCan();
 
+    int cnt;
+
     std::vector<Motor> motorvec;
 
     float cabin_temp;
@@ -61,6 +63,15 @@ public:
 
     void motorctrl(); //run motorctrl can send the Motor.pwm to motors
     void check();
+    void frameanalysis();
+    void motorstart();
+    void motorstop();
+    void get_motor_info();
+
+    bool bTemp;
+    void get_temp();
+
+    std::bitset<8> bsCtrl;
 };
 
 

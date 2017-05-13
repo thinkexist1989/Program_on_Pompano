@@ -17,7 +17,7 @@
 
 
 
-QMutex mutex;
+QMutex canmutex;
 bool   isusing = false;
 
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     std::cout << "Please wait for a while........." << std::endl;
-    usleep(2000000);
+    usleep(200000);
     std::cout << "Initializing all sensors...." << std::endl;
 
     KellerCtrl keller; // object of Keller
@@ -57,11 +57,10 @@ int main(int argc, char *argv[])
     TcpCtrl tcp(altimeter,can,keller,xsens,light,plat); //object of tcp
     tcp.StartServer();
 
-
+   // can.check();
     while(1){
         tcp.Send(); //send data to upper PC
-        can.check();
-        usleep(50000);
+        usleep(100000);
     }
     return a.exec();
 }

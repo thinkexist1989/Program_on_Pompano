@@ -1,13 +1,14 @@
 #include "tcpctrl.h"
 #include <iostream>
 #include <bitset>
+#include <QMutex>
 
 #define SERVER_PORT   6666
 #define SERVER_IP     "192.168.0.100"
 #define TCP_SEND_LEN 108
 #define TCP_RECIEVE_LEN 56
 
-
+extern QMutex canmutex;
 
 TcpCtrl::TcpCtrl(AltCtrl &alt, CanCtrl &can, KellerCtrl &keller, XsensCtrl &xsens, LightCtrl& light, PlatformCtrl& plat)
     : alt(alt), can(can), keller(keller), xsens(xsens),light(light), plat(plat), sock_server_fd(-1),sock_connect_fd(-1),stopped(false)
@@ -114,22 +115,30 @@ void TcpCtrl::run()
            }
 
            if(n == TCP_RECIEVE_LEN){
-               if(recvbuf[3] == 0x01){ //Recieved New Motor Order
-                    for(int i = 0; i<8 ;i++){
+               if(recvbuf[3] != 0){ //Recieved New Motor Order
+                   canmutex.lock();
+                   can.bsCtrl = recvbuf[3];
+                   for(int i = 0; i<8 ;i++){
                         memcpy(&can.motorvec[i].pwm,&recvbuf[4+i*4],4);
                     }
-                    can.motorctrl();
+                   canmutex.unlock();
+
+                   std::cout <<"Recieved New Motor Order" <<std::endl;
                }
                if(recvbuf[36] == 0x01){ //Recieved new three-axises platform Oder
                    for(int i = 0; i < 4 ;i++){
                        //TODO:
                    }
+
+                   std::cout <<"Recieved New Platform Order" <<std::endl;
                }
                if(recvbuf[53] != 0){
                    //TODO:SET LIGHT
                    light.brightness[0] = recvbuf[54];
                    light.brightness[1] = recvbuf[55];
                    light.start(); //thread light is not a while loop
+
+                   std::cout <<"Recieved New Light Order" <<std::endl;
                }
            }
        }
